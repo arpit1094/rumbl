@@ -1,0 +1,36 @@
+<div class="form-group">
+  <label for="q[username]">username</label>
+  <input type="text" id= "username" name="q[username]" class="form-control" onkeyup="getUsers()" />
+</div>
+<h> Listing Users </h1>
+
+<div id="users_list">
+  <table class="table">
+  <%= for user <- @users do %>
+    <tr>
+      <td><%= render "user.html", user: user %></td>
+      <td><%= link "View", to: user_path(@conn, :show, user.id) %></td>
+    </tr>
+  <% end %>
+  </table>
+</div>
+
+<script>
+function getUsers() {
+  var CSRF_TOKEN = <%= raw Poison.encode!(Plug.CSRFProtection.get_csrf_token()) %>;
+  var username = document.getElementById("username").value;
+  $.ajax({
+    url: "/users",
+    type: "get",
+    data: {
+      q: username
+    },
+    headers: {
+        "X-CSRF-TOKEN": CSRF_TOKEN 
+    },
+    success: function (data) {
+      $("#users_list").html($(data).find('#users_list').html());
+    }
+  });
+}
+</script>
